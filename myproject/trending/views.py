@@ -13,6 +13,15 @@ def trending_add(request):
         return redirect( 'mlogin' )
     #Login check end 
 
+    #If user is master user or admin then hes allowed to access this section
+    #Users who doesnt belong to this group are not authorised to this section
+    #CHECK START
+    perm = 0 
+    for i in request.user.groups.all(): 
+        if i.name == "masteruser" : perm = 1 
+
+    #CHECK END   
+
     if request.method == 'POST' :
         txt = request.POST.get('txt')
 
@@ -25,7 +34,7 @@ def trending_add(request):
 
     trendinglist = Trending.objects.all()
 
-    return render(request , 'back/trending.html', {'trendinglist' : trendinglist})
+    return render(request , 'back/trending.html', {'trendinglist' : trendinglist , 'perm' : perm})
 
 #Delete Trending 
 def trending_del(request , pk):
@@ -37,7 +46,6 @@ def trending_del(request , pk):
 
 
 def trending_edit(request , pk):
-
     mytxt = Trending.objects.get(pk=pk)
     
     if request.method == 'POST' :

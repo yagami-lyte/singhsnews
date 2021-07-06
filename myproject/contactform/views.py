@@ -24,7 +24,7 @@ def contact_add(request):
 
         msg = "Your Message Received"
         return render(request , 'front/msgbox.html' , {'msg' : msg})
-        
+          
 
 
 
@@ -41,10 +41,19 @@ def contact_show(request):
         return redirect( 'mlogin' )
     #Login check end
 
+    #If user is master user or admin then hes allowed to access this section
+    #Users who doesnt belong to this group are not authorised to this section
+    #CHECK START
+    perm = 0 
+    for i in request.user.groups.all(): 
+        if i.name == "masteruser" : perm = 1 
+
+    #CHECK END   
+
     msg = ContactForm.objects.all()
 
 
-    return render(request , 'back/contact_form.html' , {'msg' : msg})
+    return render(request , 'back/contact_form.html' , {'msg' : msg , 'perm' : perm})
 
 
 def contact_del(request , pk):

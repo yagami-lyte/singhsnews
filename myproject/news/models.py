@@ -15,6 +15,9 @@ class News(models.Model):
     catid = models.IntegerField(default = 0)
     ocatid = models.IntegerField(default = 0)
     show = models.IntegerField(default = 0) 
+
+    #Activation-- used for publishing and unpublishing news
+    act = models.IntegerField(default = 0) 
     
 
     def __str__(self):

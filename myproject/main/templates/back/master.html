@@ -209,7 +209,7 @@ them login their admin account  -->
                                     <a href="page_ready_user_profile.html" data-toggle="tooltip" data-placement="bottom" title="Profile"><i class="gi gi-user"></i></a>
                                     <a href="page_ready_inbox.html" data-toggle="tooltip" data-placement="bottom" title="Messages"><i class="gi gi-envelope"></i></a>
                                     <!-- Opens the user settings modal that can be found at the bottom of each page (page_footer.html in PHP version) -->
-                                    <a href="javascript:void(0)" class="enable-tooltip" data-placement="bottom" title="Settings" onclick="$('#modal-user-settings').modal('show');"><i class="gi gi-cogwheel"></i></a>
+                                    <a href="/panel/change/pass/" class="enable-tooltip" data-placement="bottom" title="Settings"><i class="gi gi-cogwheel"></i></a>
                                     <a href="/logout" data-toggle="tooltip" data-placement="bottom" title="Logout"><i class="gi gi-exit"></i></a>
                                 </div>
                             </div>
@@ -219,11 +219,13 @@ them login their admin account  -->
 
                             <!-- Sidebar Navigation -->
                             <ul class="sidebar-nav">
+                                
                                 <li>
                                     <a href="/panel" class=" active"><i class="gi gi-stopwatch sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">Dashboard</span></a>
                                 </li>
                                
                                
+                                {% if perm == 1 %}
                                 <li class="sidebar-header">
                                     <span class="sidebar-header-options clearfix"><a href="javascript:void(0)" data-toggle="tooltip" title="Quick Settings"><i class="gi gi-settings"></i></a></span>
                                     <span class="sidebar-header-title">Site Settings</span>
@@ -243,7 +245,21 @@ them login their admin account  -->
                                     <a href="/panel/contactform" ><i class="gi gi-show_big_thumbnails sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">    Contact Form</span></a>
                                 </li>
 
+                                {% endif %}
 
+                                {% if perm == 1 %}
+                                <li class="sidebar-header">
+                                    <span class="sidebar-header-options clearfix"><a href="javascript:void(0)" data-toggle="tooltip" title="Quick Settings"><i class="gi gi-settings"></i></a></span>
+                                    <span class="sidebar-header-title">Permissions</span>
+                                </li>
+
+                                <li>
+                                    <a href="/panel/manager/group/">Group</a>
+                                </li>
+                                {% endif %}
+
+
+                                {% if perm == 1 %}
                                 <li class="sidebar-header">
                                     <span class="sidebar-header-options clearfix"><a href="javascript:void(0)" data-toggle="tooltip" title="Quick Settings"><i class="gi gi-settings"></i></a></span>
                                     <span class="sidebar-header-title">Manager</span>
@@ -252,6 +268,8 @@ them login their admin account  -->
                                 <li>
                                     <a href="/panel/manager/list/">Manager List</a>
                                 </li>
+
+                                {% endif %}
                                
 
                                 <li class="sidebar-header">
@@ -259,7 +277,6 @@ them login their admin account  -->
                                     <span class="sidebar-header-title">News Section</span>
                                 </li>
 
-                                
                                 <li>
                                     <a href="#" class="sidebar-nav-menu"><i class="fa fa-angle-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="gi gi-show_big_thumbnails sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">Category</span></a>
                                     <ul>
@@ -290,10 +307,10 @@ them login their admin account  -->
                                     <a href="#" class="sidebar-nav-menu"><i class="fa fa-angle-left sidebar-nav-indicator sidebar-nav-mini-hide"></i><i class="gi gi-show_big_thumbnails sidebar-nav-icon"></i><span class="sidebar-nav-mini-hide">Newsletter</span></a>
                                     <ul>
                                         <li>
-                                            <a href="/panel/newsletter/emails/">Emails</a>
+                                            <a href="/newsletter/emails/">Emails</a>
                                         </li>
                                         <li>
-                                            <a href="/panel/newsletter/phones/">Phone Number</a>
+                                            <a href="/newsletter/phones/">Phone Number</a>
                                         </li>
                                       
                                     </ul>

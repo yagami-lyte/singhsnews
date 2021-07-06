@@ -6,15 +6,14 @@ import datetime
 from subcat.models import SubCat 
 from cat.models import Cat 
 from trending.models import Trending
-#This will show a specific number of news on the panel's news 
-#list section.
-from django.core.paginator import Paginator , EmptyPage , PageNotAnInteger 
 
 
 def news_detail(request , word):
     
+    #For site settings
     site = Main.objects.get(pk = 2 )
 
+    #For Featured Posts 
     news = News.objects.all().order_by('-pk')
     cat = Cat.objects.all() 
     subcat = SubCat.objects.all()
@@ -22,6 +21,7 @@ def news_detail(request , word):
     popnews = News.objects.all().order_by('-pk')[:3]
     trending = Trending.objects.all().order_by('-pk')
 
+    #For news Detail
     shownews = News.objects.filter(name = word)
 
     mynew = News.objects.filter(name=word)
@@ -45,36 +45,36 @@ def news_list(request):
         return redirect('my_login')
     #Login Check End 
 
-    news = News.objects.all().order_by('-pk') 
+    #If user is master user or admin then hes allowed to access this section
+    #Users who doesnt belong to this group are not authorised to this section
+    #CHECK START
+    perm = 0 
+    for i in request.user.groups.all(): 
+        if i.name == "masteruser" : perm = 1 
 
-    #Ony 2 news will be displayed per panel
-    paginator = Paginator(news ,5)
-    #Get the page number
-    page = request.GET.get('page')
+    #CHECK END   
 
-    #Receives the page number from above and goes to that page
-    try:
-        news = paginator.page(page)
-    #if no further pages, same page will be set
-    except EmptyPage :
-        news = paginator.page(paginator.num_page)
-    #if page number is not an integer, same page will be set
-    except PageNotAnInteger :
-        news = paginator.page(1)
-     
+    news = News.objects.all().order_by('-creation_time') 
 
-
-    return render(request , 'back/news_list.html', {'news' : news})
+    return render(request , 'back/news_list.html', {'news' : news , 'perm' : perm})
 
 
 
 
 def news_add(request):
-
     #Login Check Start
     if not request.user.is_authenticated :
         return redirect('my_login')
     #Login Check End 
+
+    #If user is master user or admin then hes allowed to access this section
+    #Users who doesnt belong to this group are not authorised to this section
+    #CHECK START
+    perm = 0 
+    for i in request.user.groups.all(): 
+        if i.name == "masteruser" : perm = 1 
+
+    #CHECK END   
 
     now = datetime.datetime.now()
     year = now.year 
@@ -103,31 +103,37 @@ def news_add(request):
 
 
     if request.method == 'POST' :
+        
+        #Get the entered value on the sreen by request.POST.get syntax 
         newstitle = request.POST.get('newstitle')
         newscat = request.POST.get('newscat')
         newstxtshort = request.POST.get('newstxtshort')
         newstxt = request.POST.get('newstxt')
         newsid = request.POST.get('newscat')
 
+        #Validations--- whether all fields are filled or not
         if newstitle == "" or newstxtshort == "" or newstxt == "" or newscat == "":
             error = "All Fields Required"
             return render(request , 'back/error.html' , {'error' : error}) 
         
         
         try :
+            #Upload and save the image
             myfile = request.FILES['myfile']
             fs = FileSystemStorage()
             filename = fs.save(myfile.name , myfile)
             url = fs.url(filename)
 
+            #Check if fileis image format or not
             if str(myfile.content_type).startswith("image"):
 
                 if myfile.size < 5000000 :
                     
+                    #Category name
                     newsname = SubCat.objects.get(pk = newsid).name 
                     ocatid = SubCat.objects.get(pk = newsid).catid 
                      
-
+                    #Save to Database
                     b = News(name=newstitle , short_txt = newstxtshort , body_txt = newstxt , date = today ,picname = filename , picurl=url , writer = "-" , catname = newsname , catid = newsid ,show = 0 , time = time , ocatid = ocatid)
                     b.save()
 
@@ -149,6 +155,7 @@ def news_add(request):
 
             else:
 
+                #Delete the image since its not supported
                 fs = FileSystemStorage()
                 fs.delete(b.picname) 
 
@@ -164,7 +171,7 @@ def news_add(request):
             error = "Please input your image" 
             
 
-    return render(request , 'back/news_add.html' , {'cat' : cat})
+    return render(request , 'back/news_add.html' , {'cat' : cat , 'perm' : perm})
 
 
 def news_delete(request,pk):
@@ -300,10 +307,30 @@ def news_all_show(request,word):
     return render(request , 'front/all_news.html' , {'site' : site , 'news' : news , 'cat' : cat , 'subcat' : subcat , 'lastnews' : lastnews , 'popnews' : popnews , 'trending' : trending , 'lastnews2' : lastnews2 , 'allnews' : allnews})
 
 
+#Publish news after check from admin
+def news_publish(request,pk):
+    #Login Check Start
+    if not request.user.is_authenticated :
+        return redirect('my_login')
+    #Login Check End 
+
+    #If user is master user or admin then hes allowed to access this section
+    #Users who doesnt belong to this group are not authorised to this section
+    #CHECK START
+    perm = 0 
+    for i in request.user.groups.all(): 
+        if i.name == "masteruser" : perm = 1 
+
+    #CHECK END    
+
+    news = News.objects.get(pk=pk)
+    news.act = 1  
+    news.save() 
 
 
 
 
+    return redirect('news_list' , {'perm' : perm})
 
 
 

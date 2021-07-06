@@ -11,16 +11,26 @@ from django.contrib.auth.models import User
 #For manager to manage all the required users in the panel
 from manager.models import Manager 
 
+from django.contrib.auth.models import User,Group,Permission
+
+from django.contrib.auth.models import User 
+
 def home(request):
     site = Main.objects.get(pk=2)
-    news = News.objects.all().order_by('-pk')
+    
+    #Act=1 indicates whether the news will be puclished or not
+    #Add this in all news queries
+    news = News.objects.filter(act=1).order_by('-pk')
     cat = Cat.objects.all() 
     subcat = SubCat.objects.all()
-    lastnews = News.objects.all().order_by('-pk')[:3]
-    popnews = News.objects.all().order_by('-show')[:5]
+    #REcent Posts News
+    lastnews = News.objects.filter(pk=1).order_by('-pk')[:3]
+
+    #News Details Side bar Popular posts
+    popnews = News.objects.filter(act=1).order_by('-show')[:5]
     trending = Trending.objects.all().order_by('-pk')
 
-    lastnews2 = News.objects.all().order_by('-pk')[:4]
+    lastnews2 = News.objects.filter(act=1).order_by('-pk')[:4]
 
 
     return render(request , 'front/home.html' , {'site' : site , 'news' : news , 'cat' : cat , 'subcat' : subcat , 'lastnews' : lastnews , 'popnews' : popnews , 'trending' : trending , 'lastnews2' : lastnews2})
@@ -44,8 +54,18 @@ def panel(request):
     if not request.user.is_authenticated :
         return redirect('my_login')
     #Login Check End 
+
+    #If user is master user or admin then hes allowed to access this section
+    #Users who doesnt belong to this group are not authorised to this section
+    #CHECK START
+    perm = 0 
+    for i in request.user.groups.all(): 
+        if i.name == "masteruser" : perm = 1 
+
+    #CHECK END    
     
-    return render(request , 'back/home.html') 
+    return render(request , 'back/home.html' , {'perm' : perm})
+
 
 
 #A login page view function 
@@ -144,6 +164,18 @@ def site_setting(request):
         return redirect( 'mlogin' )
     #Login check end 
 
+    #If user is master user or admin then hes allowed to access this section
+    #Users who doesnt belong to this group are not authorised to this section
+    #CHECK START
+    perm = 0 
+    for i in request.user.groups.all(): 
+        if i.name == "masteruser" : perm = 1 
+
+    if perm == 0 :
+        error = "Access Denied"
+        return render(request , 'back/error.html' , {'error' : error}) 
+    #CHECK END    
+
     
 
     if request.method == 'POST' : 
@@ -199,7 +231,7 @@ def site_setting(request):
             
     site = Main.objects.get(pk = 2)
 
-    return render(request , 'back/setting.html' , {'site' : site})
+    return render(request , 'back/setting.html' , {'site' : site , 'perm' : perm})
 
 
 def about_setting(request):
@@ -208,6 +240,18 @@ def about_setting(request):
     if not request.user.is_authenticated :
         return redirect( 'mlogin' )
     #Login check end 
+
+    #If user is master user or admin then hes allowed to access this section
+    #Users who doesnt belong to this group are not authorised to this section
+    #CHECK START
+    perm = 0 
+    for i in request.user.groups.all(): 
+        if i.name == "masteruser" : perm = 1 
+
+    if perm == 0 :
+        error = "Access Denied"
+        return render(request , 'back/error.html' , {'error' : error}) 
+    #CHECK END    
 
     if request.method == 'POST' :
         txt = request.POST.get('txt')
@@ -220,11 +264,11 @@ def about_setting(request):
         b.abouttxt = txt 
         b.save()
 
-
+ 
 
     about = Main.objects.get(pk=2).abouttxt
 
-    return render(request , 'back/about_setting.html' , {'about' : about})
+    return render(request , 'back/about_setting.html' , {'about' : about , 'perm' : perm})
 
 def contact(request):
     site = Main.objects.get(pk=2)
@@ -238,3 +282,53 @@ def contact(request):
 
     return render(request , 'front/contact.html' , {'site' : site , 'news' : news , 'cat' : cat , 'subcat' : subcat , 'lastnews' : lastnews , 'popnews' : popnews , 'trending' : trending})
 
+def change_pass(request):
+    #Login check Start
+    if not request.user.is_authenticated :
+        return redirect( 'mlogin' )
+    #Login check end 
+
+    if request.method == 'POST' : 
+        oldpass = request.POST.get('oldpass')
+        newpass = request.POST.get('newpass')
+
+        if oldpass == "" or newpass == "" : 
+            error = "All Fields Required"
+            return render(request , 'back/error.html' , {'error' : error})
+
+        user = authenticate(username = request.user , password = oldpass)
+
+        if user != None :
+            if len(newpass) < 8 : 
+                error = "Your Password Must be atleast 8 characters"
+                return render(request , 'back/error.html' , {'error' : error})
+  
+        count1 = 0  
+        count2 = 0  
+        count3 = 0  
+        count4 = 0 
+
+        for i in newpass : 
+            if i > "0" and i < "9" : 
+                count1 = 1 
+            if i > "A" and i < "Z" : 
+                count2 = 1 
+            if i > "a" and i < "z" :
+                count3 = 1 
+
+        if count1 == 1 and count2  == 1 and count3 == 1: 
+            user = User.objects.get(username = request.user)
+            user.set_password(newpass)
+            user.save()  
+            return redirect('my_logout')
+
+        else :
+            error = "Password is not Strong Enough"
+            return render(request , 'back/error.html' , {'error' : error})
+        
+
+
+        
+        
+
+    return render(request , 'front/change_pass.html')

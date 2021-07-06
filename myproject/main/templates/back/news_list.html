@@ -35,6 +35,7 @@
                     <th>Category</th>
                     <th>Writer</th>
                     <th>Views</th>
+                    <th>Status</th>
                     <th class="text-center">Actions</th>
                 </tr>
             </thead>
@@ -50,10 +51,20 @@
                     <td>{{cc.catname}}</td>
                     <td>{{cc.writer}}</td>
                     <td>{{cc.show}}</td>
+
+                    {% if cc.act == 0 %}
+                        <td>Pending</td>
+                    {% elif cc.act == 1 %}
+                        <td>Confirmed</td>
+                    {% endif %}
+
                     <td class="text-center">
                         <div class="btn-group">
-                            <a href="{% url 'news_edit' pk=cc.pk %}" data-toggle="tooltip" title="Edit" class="btn btn-xs btn-default"><i class="fa fa-pencil"></i> Edit </a>
-                            <a href="{% url 'news_delete' pk=cc.pk %}" data-toggle="tooltip" title="Delete" class="btn btn-xs btn-danger"><i class="fa fa-times"></i> Delete</a>
+                            <a href="{% url 'news_edit' pk=cc.pk %}" data-toggle="tooltip" title="Edit" class="btn btn-xs btn-default"><i class="fa fa-pencil"></i> Edit </a><br>
+                            <a href="{% url 'news_delete' pk=cc.pk %}" data-toggle="tooltip" title="Delete" class="btn btn-xs btn-danger"><i class="fa fa-times"></i> Delete</a><br>
+                            {% if perm == 1 %}
+                            <a href="{% url 'news_publish' pk=cc.pk %}" data-toggle="tooltip" title="Edit" class="btn btn-xs btn-default"><i class="fa fa-pencil"></i> Publish </a><br>
+                            {% endif %}
                         </div>
                     </td>
                 </tr>
@@ -63,16 +74,10 @@
             </tbody>
         </table>
         <br>
-        Page {{news.number}} From {{news.paginator.num_pages}}
+      
         <br><br>
  
-        {% if news.has_previous %}
-        <a href="? page={{news.previous_page_number}}" data-toggle="tooltip" title="Previous" class="btn btn-xs btn-default"><i ></i> Previous </a> 
-        {% endif %}
-
-        {% if news.has_next %}
-        <a href="?page={{news.next_page_number}}" data-toggle="tooltip" title="Next" class="btn btn-xs btn-default"><i ></i> Next </a>
-        {% endif %}
+       
 
     </div>
 </div> 

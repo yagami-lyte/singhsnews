@@ -9,10 +9,19 @@ def cat_list(request):
         return redirect('my_login')
     #Login Check End 
 
+    #If user is master user or admin then hes allowed to access this section
+    #Users who doesnt belong to this group are not authorised to this section
+    #CHECK START
+    perm = 0 
+    for i in request.user.groups.all(): 
+        if i.name == "masteruser" : perm = 1 
+
+    #CHECK END   
+
     cat = Cat.objects.all()
 
 
-    return render(request , 'back/cat_list.html' , {'cat' : cat})
+    return render(request , 'back/cat_list.html' , {'cat' : cat , 'perm' : perm})
 
 
 
@@ -21,6 +30,15 @@ def cat_add(request):
     if not request.user.is_authenticated :
         return redirect('my_login')
     #Login Check End 
+
+    #If user is master user or admin then hes allowed to access this section
+    #Users who doesnt belong to this group are not authorised to this section
+    #CHECK START
+    perm = 0 
+    for i in request.user.groups.all(): 
+        if i.name == "masteruser" : perm = 1 
+
+    #CHECK END   
 
     if request.method == 'POST' : 
         name = request.POST.get('name')
@@ -39,11 +57,11 @@ def cat_add(request):
         b = Cat(name = name)
         b.save()
 
-        return redirect('cat_list')
+        return redirect('cat_list') 
 
 
 
-    return render(request , 'back/cat_add.html')
+    return render(request , 'back/cat_add.html' , {'perm' : perm})
 
 
 

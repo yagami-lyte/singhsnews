@@ -46,7 +46,7 @@
                     <td>{{cc.txt}}</td>
                     <td class="text-center">
                         <div class="btn-group">
-                            <a href="#" data-toggle="tooltip" title="Answer" class="btn btn-xs btn-default"> Answer </a>
+                            <a href="mailto:{{cc.email}}" data-toggle="tooltip" title="Answer" class="btn btn-xs btn-default"> Answer </a>
                             <a href="{% url 'contact_del' pk=cc.pk %}" data-toggle="tooltip" title="Delete" class="btn btn-xs btn-danger"><i class="fa fa-times"></i> Delete</a>
                         </div>
                     </td>
